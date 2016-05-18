@@ -9,5 +9,9 @@ public class Constants {
   public static final String INSTANCE_MAIN_CLASS = "instance.bootstrap.class";
   
   public static final String INSTANCE_INVOKED_METHODS = "instance.invoked.methods";
+  
+  public static final String JMX_SERVICE_URL = "jmxserviceurl";
+  
+  public static final String INTERLOK_INSTANCE_ID = "instance.id";
 
 }

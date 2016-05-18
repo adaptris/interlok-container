@@ -31,8 +31,15 @@ public class ArchiveWatcher {
 
   public void start() {
     stopped = false;
+    loadAlreadyStartedInstances();
     monitorThread = createThread();
     monitorThread.start();
+  }
+
+  private void loadAlreadyStartedInstances() {
+    for(InterlokInstance instance : this.getInstanceList()) {
+      scheduledStartups.put(instance.getInstanceName(), new InterlokInstanceManager(instance));
+    }
   }
 
   public void stop() {
@@ -99,8 +106,7 @@ public class ArchiveWatcher {
       }
 
       private void scheduleShutdown(File file) {
-        
-        
+        scheduledStartups.get(file.getName()).shutdown();
       }
 
       private InterlokInstance scheduleNewLaunch(File file) {

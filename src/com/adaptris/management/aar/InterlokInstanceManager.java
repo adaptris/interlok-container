@@ -1,9 +1,18 @@
 package com.adaptris.management.aar;
 
+import static com.adaptris.management.aar.Constants.INTERLOK_INSTANCE_ID;
+import static com.adaptris.management.aar.Constants.JMX_SERVICE_URL;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 public class InterlokInstanceManager {
   
@@ -16,6 +25,13 @@ public class InterlokInstanceManager {
   public InterlokInstanceManager(String instanceName) {
     interlokInstance = new InterlokInstance();
     this.interlokInstance.setInstanceName(instanceName);
+    
+    scheduler = Executors.newScheduledThreadPool(1);
+  }
+  
+  public InterlokInstanceManager(InterlokInstance interlokInstance) {
+    this.interlokInstance = interlokInstance;
+    
     scheduler = Executors.newScheduledThreadPool(1);
   }
   
@@ -46,7 +62,29 @@ public class InterlokInstanceManager {
   }
   
   public void shutdown() {
+    JMXConnector jmxc = null;
+    try {
+      String jmxServiceUrl = this.interlokInstance.getInstanceProperties().getProperty(JMX_SERVICE_URL);
+      if(jmxServiceUrl != null) {
+        JMXServiceURL url = new JMXServiceURL(jmxServiceUrl); 
+        jmxc = JMXConnectorFactory.connect(url, null); 
+        MBeanServerConnection mbsc = jmxc.getMBeanServerConnection(); 
     
+        ObjectName mbeanName = new ObjectName("com.adaptris:type=Adapter,id=" + this.interlokInstance.getInstanceProperties().getProperty(INTERLOK_INSTANCE_ID));
+        mbsc.invoke(mbeanName, "requestClose", new Object[]{}, new String[]{});
+        
+        this.instanceHandle.cancel(true);
+      } else
+        System.out.println("Cannot shutdown instance; no jmxserviceurl property found.");
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    } finally {
+      try {
+        jmxc.close();
+      } catch (Exception e) {
+        // silently
+      }
+    }
   }
 
 }
