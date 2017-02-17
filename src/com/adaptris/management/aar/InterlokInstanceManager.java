@@ -22,11 +22,15 @@ public class InterlokInstanceManager {
   
   private InterlokInstance interlokInstance;
   
+  private boolean isRunning;
+  
   public InterlokInstanceManager(String instanceName) {
     interlokInstance = new InterlokInstance();
     this.interlokInstance.setInstanceName(instanceName);
     
     scheduler = Executors.newScheduledThreadPool(1);
+    
+    isRunning = false;
   }
   
   public InterlokInstanceManager(InterlokInstance interlokInstance) {
@@ -42,6 +46,7 @@ public class InterlokInstanceManager {
         System.out.println("About to start new Interlok instance: " + interlokInstance.getInstanceName());
         try {
           interlokInstance = new ArchiveInstanceRunner(interlokInstance, ContainerBootstrap.getContainerProperties()).startInstance();
+          isRunning = true;
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -54,11 +59,18 @@ public class InterlokInstanceManager {
   }
   
   public boolean delayStartup() {
-    System.out.println("Delaying startup of instance: " + interlokInstance.getInstanceName() + ".  Waiting for file copy.");
-    boolean cancelled = this.instanceHandle.cancel(true);
-    this.scheduleStartup();
-    
-    return cancelled;
+    if(isRunning) {
+      System.out.println("Instance already running: " + interlokInstance.getInstanceName() + ".  Ignoring modification.");
+      return true;
+    } else {
+      System.out.println("Delaying startup of instance: " + interlokInstance.getInstanceName() + ".  Waiting for file copy.");
+      boolean cancelled = true;
+      if(instanceHandle != null) {
+        cancelled = this.instanceHandle.cancel(true);
+        this.scheduleStartup();
+      }
+      return cancelled;
+    }
   }
   
   public void shutdown() {
@@ -81,6 +93,7 @@ public class InterlokInstanceManager {
     } finally {
       try {
         jmxc.close();
+        isRunning = false;
       } catch (Exception e) {
         // silently
       }
