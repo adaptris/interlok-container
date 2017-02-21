@@ -37,6 +37,8 @@ public class ContainerBootstrap {
       archiveWatcher.setInstanceList(instanceList);
       archiveWatcher.start();
       
+      System.out.println("Interlok container started - awaiting archives...");
+      
     } catch (Exception e) {
       e.printStackTrace();
       System.out.println(this.usage());

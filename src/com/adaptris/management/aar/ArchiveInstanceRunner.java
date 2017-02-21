@@ -66,6 +66,8 @@ public class ArchiveInstanceRunner extends Thread {
         File bootstrapPropertiesFile = new File(aarInstDir, BOOTSTRAP_PROPERTIES);
         Object standardBootstrapInst = bootstrapConstructor.newInstance(new Object[] {new String[] {bootstrapPropertiesFile.getAbsolutePath()}});
         
+        Thread.currentThread().setContextClassLoader(classLoader);
+        
         invokeInstanceBootstrap(interlokInstance.getInstanceProperties(), standardBootstrapClass, standardBootstrapInst);
         
         registerShutdownHook();
