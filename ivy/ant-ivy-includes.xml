@@ -27,7 +27,7 @@
     <property name="code-signing.keystore"  value="${build.dir}/signing/code-signing.jks"/>
     <property name="code-signing.alias" value="code_signer"/>
     <!-- Default this to false, so that we always sign -->
-    <property name="unsigned.code"          value="false"/>
+    <property name="unsigned.code"          value="true"/>
     <tstamp>
       <format property="build.date" pattern="yyyy-MM-dd" locale="en"/>
     </tstamp>
@@ -493,7 +493,7 @@
       <attribute name="artifact.basedir" default="${project.dist.dir}"/>
       <sequential>
         <ivy:resolve file="@{ivy-config}" refresh="true" log="${ivy.logging}"/>
-        <ivy:publish resolver="@{resolver}" revision="@{revision}" overwrite="true" status="@{status}" publishivy="true" >
+        <ivy:publish resolver="@{resolver}" revision="@{revision}" overwrite="true" status="@{status}" publishivy="true" conf="default,master,compile,provided,runtime,test,system,sources,javadoc,optional,examples">
           <artifacts pattern="@{artifact.basedir}/[module]/[type]/[artifact].[ext]"/>
         </ivy:publish>
       </sequential>
