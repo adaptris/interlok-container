@@ -78,16 +78,16 @@ public class ArchiveWatcher {
               Path filename = ev.context();
               
               if(kind == StandardWatchEventKinds.ENTRY_CREATE) {     
-                System.out.println("New instance: " + filename.toString() + " detected.");
+                SimpleLogger.log("New instance: " + filename.toString() + " detected.");
                 InterlokInstance interlokInstance = this.scheduleNewLaunch(new File(directory, filename.toString()));
                 getInstanceList().add(interlokInstance);
                                 
               } else if(kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                System.out.println("Removing instance - " + filename.toString());
+                SimpleLogger.log("Removing instance - " + filename.toString());
                 this.scheduleShutdown(new File(directory, filename.toString()));
                 
               } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-                System.out.println("Modifying instance - " + filename.toString());
+                SimpleLogger.log("Modifying instance - " + filename.toString());
                 if(scheduledStartups.containsKey(filename.toString()))
                   scheduledStartups.get(filename.toString()).delayStartup();
               } else

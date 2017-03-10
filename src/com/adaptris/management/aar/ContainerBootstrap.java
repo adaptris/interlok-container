@@ -4,9 +4,12 @@ import static com.adaptris.management.aar.Constants.ARCHIVE_PATH_KEY;
 import static com.adaptris.management.aar.Constants.GLOBAL_LIB_PATH_KEY;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.management.MBeanServer;
 
 public class ContainerBootstrap {
   
@@ -20,7 +23,8 @@ public class ContainerBootstrap {
     try {
       containerProperties = parseArguments(args);
       PropertiesHelper.verifyProperties(containerProperties, GLOBAL_LIB_PATH_KEY, ARCHIVE_PATH_KEY);
-      
+      MBeanServer s = ManagementFactory.getPlatformMBeanServer();
+
       List<InterlokInstance> instanceList = new ArrayList<>();
       
       File aarDirectory = new File(containerProperties.getProperty(ARCHIVE_PATH_KEY));
@@ -37,11 +41,10 @@ public class ContainerBootstrap {
       archiveWatcher.setInstanceList(instanceList);
       archiveWatcher.start();
       
-      System.out.println("Interlok container started - awaiting archives...");
+      SimpleLogger.log("Interlok container started - awaiting archives...");
       
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println(this.usage());
+      SimpleLogger.log(this.usage(), e);
     }
   }
 

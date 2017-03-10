@@ -74,8 +74,7 @@ public class ArchiveInstanceRunner extends Thread {
       }
       
     } catch (Exception e) {
-      System.out.println("Failed to start archive instance.");
-      e.printStackTrace();
+      SimpleLogger.log("Failed to start archive instance.", e);
     }
   }
 
@@ -138,7 +137,7 @@ public class ArchiveInstanceRunner extends Thread {
         });
   
         if (fileNames == null)
-          System.out.println("No jars found in [" + dir.getCanonicalPath() + "]");
+          SimpleLogger.log("No jars found in [" + dir.getCanonicalPath() + "]");
         else {  
           for (int i = 0; i < fileNames.length; i++) {
             File file = new File(dir.getPath() + File.separator + fileNames[i]);
