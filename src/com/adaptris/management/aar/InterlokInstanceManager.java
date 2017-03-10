@@ -16,7 +16,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-public class InterlokInstanceManager {
+class InterlokInstanceManager {
   
   private ScheduledExecutorService scheduler;
   
@@ -26,7 +26,7 @@ public class InterlokInstanceManager {
   
   private boolean isRunning;
   
-  public InterlokInstanceManager(String instanceName) {
+  InterlokInstanceManager(String instanceName) {
     interlokInstance = new InterlokInstance();
     this.interlokInstance.setInstanceName(instanceName);
     
@@ -35,13 +35,13 @@ public class InterlokInstanceManager {
     isRunning = false;
   }
   
-  public InterlokInstanceManager(InterlokInstance interlokInstance) {
+  InterlokInstanceManager(InterlokInstance interlokInstance) {
     this.interlokInstance = interlokInstance;
     
     scheduler = Executors.newScheduledThreadPool(1);
   }
   
-  public InterlokInstance scheduleStartup() {
+  InterlokInstance scheduleStartup() {
     final Runnable instanceRunnable = new Runnable() {
       @Override
       public void run() {
@@ -60,7 +60,7 @@ public class InterlokInstanceManager {
     return interlokInstance;
   }
   
-  public boolean delayStartup() {
+  boolean delayStartup() {
     if(isRunning) {
       SimpleLogger.log("Instance already running: " + interlokInstance.getInstanceName() + ".  Ignoring modification.");
       return true;
@@ -72,7 +72,7 @@ public class InterlokInstanceManager {
     }
   }
   
-  public void shutdown() {
+  void shutdown() {
     JMXConnector jmxc = null;
     try {
       jmxc = connect(this.interlokInstance.getInstanceProperties().getProperty(JMX_SERVICE_URL));

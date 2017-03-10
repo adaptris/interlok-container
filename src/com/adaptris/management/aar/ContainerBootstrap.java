@@ -19,7 +19,7 @@ public class ContainerBootstrap {
     new ContainerBootstrap().doContainer(args);
   }
   
-  public void doContainer(String[] args) {
+  void doContainer(String[] args) {
     try {
       containerProperties = parseArguments(args);
       PropertiesHelper.verifyProperties(containerProperties, GLOBAL_LIB_PATH_KEY, ARCHIVE_PATH_KEY);
@@ -65,13 +65,8 @@ public class ContainerBootstrap {
     return "Only a single argument is required; the path to the container properties file.";
   }
 
-  public static Properties getContainerProperties() {
+  static Properties getContainerProperties() {
     return containerProperties;
   }
-
-  public static void setContainerProperties(Properties containerProperties) {
-    ContainerBootstrap.containerProperties = containerProperties;
-  }
-
   
 }
