@@ -1,7 +1,6 @@
 package com.adaptris.management.aar;
 
 import static com.adaptris.management.aar.Constants.ARCHIVE_PATH_KEY;
-import static com.adaptris.management.aar.Constants.GLOBAL_LIB_PATH_KEY;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -50,12 +49,12 @@ class ArchiveInstanceRunner extends Thread {
         
         File aarDirectory = new File(containerProperties.getProperty(ARCHIVE_PATH_KEY));
         
-        URL[] classpathJars = this.getDirectoryJars(
-            new File(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY)).getAbsolutePath(),
-            new File(new File(aarDirectory, interlokInstance.getInstanceName()), "lib").getAbsolutePath()
-        );
-              
-        classLoader = new URLClassLoader(classpathJars, this.getClass().getClassLoader());
+        // URL[] classpathJars = this.getDirectoryJars(
+        // new File(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY)).getAbsolutePath(),
+        // new File(new File(aarDirectory, interlokInstance.getInstanceName()), "lib").getAbsolutePath()
+        // );
+        // classLoader = new ChildFirstClassloader(classpathJars, this.getClass().getClassLoader());
+        classLoader = new ChildFirstClassloader(new URL[0], this.getClass().getClassLoader());
         Class<?> standardBootstrapClass = classLoader.loadClass(interlokInstance.instanceMainClass());
         Constructor<?> bootstrapConstructor = standardBootstrapClass.getConstructor(String[].class);
         
