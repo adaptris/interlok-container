@@ -23,7 +23,7 @@ public class ContainerBootstrap {
     try {
       containerProperties = parseArguments(args);
       PropertiesHelper.verifyProperties(containerProperties, GLOBAL_LIB_PATH_KEY, ARCHIVE_PATH_KEY);
-      ClasspathInitialiser.load(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY));
+      ClasspathInitialiser.init(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY).split(File.pathSeparator));
       MBeanServer s = ManagementFactory.getPlatformMBeanServer();
 
       List<InterlokInstance> instanceList = new ArrayList<>();

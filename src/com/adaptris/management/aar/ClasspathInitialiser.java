@@ -36,13 +36,21 @@ class ClasspathInitialiser {
     currentClasspath = getCurrentClassPath();
   }
 
-  public static ClasspathInitialiser load(String directory) {
+  public static ClasspathInitialiser init(String... directories) {
     if (INSTANCE == null) {
       INSTANCE = new ClasspathInitialiser();
       try {
-        INSTANCE.add(new File("./config"));
-        for (File f : INSTANCE.getJars(directory)) {
-          INSTANCE.add(f);
+        for (String dir : directories) {
+          Collection<File> files = INSTANCE.getJars(dir);
+          if (files.size() == 0) {
+            // No jar files, add the directory itself to the classpath.
+            INSTANCE.add(new File(dir));
+          }
+          else {
+            for (File f : files) {
+              INSTANCE.add(f);
+            }
+          }
         }
         INSTANCE.setSystemClasspath();
       } catch (Exception e) {
@@ -101,7 +109,7 @@ class ClasspathInitialiser {
         File file = new File((String) st.nextElement());
         if (!result.contains(file.getCanonicalPath())) {
           result.add(file);
-          SimpleLogger.log("(Info) StandardBootstrap.getCurrentClassPath: " + file.getCanonicalPath());
+          SimpleLogger.log("(Info) ContainerBootstrap.getCurrentClassPath: " + file.getCanonicalPath());
         }
       } catch (Exception e) {
         ;
