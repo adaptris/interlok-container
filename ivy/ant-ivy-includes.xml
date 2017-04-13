@@ -27,7 +27,7 @@
     <property name="code-signing.keystore"  value="${build.dir}/signing/code-signing.jks"/>
     <property name="code-signing.alias" value="code_signer"/>
     <!-- Default this to false, so that we always sign -->
-    <property name="unsigned.code"          value="true"/>
+    <property name="unsigned.code"          value="false"/>
     <tstamp>
       <format property="build.date" pattern="yyyy-MM-dd" locale="en"/>
     </tstamp>
@@ -56,7 +56,8 @@
     <ivy:resolve file="${ivy.xml.file}" refresh="true" showprogress="false" log="${ivy.logging}" useCacheOnly="${ivy.offline.mode}"/>
 
     <ivy:cachepath pathid="classpath.ant-tools" conf="ant" type="jar,zip,bundle"/>
-    <ivy:cachepath pathid="main.classpath" conf="compile,runtime,test,optional" type="jar,zip,bundle,hk2-jar,maven-plugin"/>
+    <ivy:cachepath pathid="main.classpath" conf="compile,runtime,test,optional" type="jar,zip,bundle,hk2-jar,maven-plugin,eclipse-plugin"/>
+    <ivy:cachepath pathid="classpath.jar" conf="compile,runtime" type="jar,zip,bundle,hk2-jar,maven-plugin,eclipse-plugin"/>
     <property name="anttools.classpath" refid="classpath.ant-tools"/>
     <property name="cc.classpath" refid="main.classpath"/>
     <echo message="Ivy Resolved Classpath - ${cc.classpath}" level="verbose"/>
@@ -226,23 +227,6 @@
           </classpath>
           <ydoc-doclet/>
           <grouping/>
-          <link offline="false" href="http://docs.oracle.com/javaee/7/api/" />
-          <link offline="false" href="http://docs.oracle.com/javase/7/docs/api/" />
-          <link offline="false" href="http://commons.apache.org/proper/commons-net/javadocs/api-3.3/"/>
-          <link offline="false" href="http://archive.eclipse.org/jetty/8.1.14.v20131031/apidocs"/>
-          <link offline="false" href="http://xml.apache.org/xalan-j/apidocs/"/>
-          <link offline="false" href="http://commons.apache.org/proper/commons-pool/api-1.6/"/>
-          <link offline="false" href="http://mx4j.sourceforge.net/docs/api/"/>
-          <link offline="false" href="http://www.slf4j.org/apidocs/"/>
-          <link offline="false" href="http://development.adaptris.com/javadocs/v3-snapshot/Interlok-API/"/>
-          <link offline="false" href="http://development.adaptris.net/javadocs/v3-snapshot/Interlok-Common/"/>
-          <link offline="false" href="http://www.swiftmq.com/products/router/swiftlets/sys_amqp/client/javadoc/"/>
-          <link offline="false" href="http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/"/>
-          <link offline="false" href="http://hc.apache.org/httpcomponents-core-ga/httpcore/apidocs/"/>
-          <!--link offline="false" href="http://iron-io.github.io/iron_mq_java/"/-->
-          <!-- current inaccessible for some reason -->
-          <!--link offline="false" href="http://activemq.apache.org/maven/5.3.2/activemq-core/apidocs/"/-->
-          <!--link offline="false" href="http://javadoc.iaik.tugraz.at/iaik_jce/current/" /-->
           <taglet name="com.adaptris.taglet.ConfigTaglet">
             <path refid="classpath.ant-tools"/>
           </taglet>
@@ -499,24 +483,6 @@
       </sequential>
     </macrodef>
 
-    <macrodef name="create-manifest" uri="uri:adapter">
-      <attribute name="file" default="${build.dir}/Manifest.mf"/>
-      <attribute name="title"/>
-      <attribute name="vendor" default="Adaptris Ltd"/>
-      <attribute name="vendorId" default="com.adaptris"/>
-      <attribute name="version" default="${ivy.publish.revision}"/>
-      <sequential>
-        <manifest file="${build.dir}/Manifest.mf">
-          <attribute name="Manifest-Version" value="1.0"/>
-          <attribute name="Build-Version" value="@{version}"/>
-          <attribute name="Built-By" value="${user.name}"/>
-          <attribute name="Implementation-Vendor-Id" value="@{vendorId}"/>
-          <attribute name="Implementation-Version" value="@{version}"/>
-          <attribute name="Implementation-Title" value="@{title}"/>
-          <attribute name="Implementation-Vendor" value="@{vendor}"/>
-        </manifest>
-      </sequential>
-    </macrodef>
   </target>
 
 
@@ -586,7 +552,7 @@
         </zip>
       </then>
     </if>
-    <ivy:makepom ivyfile="${ivy.xml.file}" pomfile="${project.dist.dir}/${project.name}/pom/${project.name}.pom"/>
+    <ivy:makepom ivyfile="${ivy.xml.file}" pomfile="${project.dist.dir}/${project.name}/pom/${project.name}.pom" description="${project.pom.description}"  conf="default,master,compile,provided,runtime,test,system,sources,javadoc,optional"/>
   </target>
 
   <target name="publish" depends="prepare-for-publish">

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ArchiveWatcher {
+class ArchiveWatcher {
 
   private List<InterlokInstance> instanceList;
   
@@ -24,12 +24,12 @@ public class ArchiveWatcher {
   private transient boolean stopped = false;
   private transient Thread monitorThread;
   
-  public ArchiveWatcher() {
+  ArchiveWatcher() {
     instanceList = new ArrayList<InterlokInstance>();
     scheduledStartups = new HashMap<String, InterlokInstanceManager>();
   }
 
-  public void start() {
+  void start() {
     stopped = false;
     loadAlreadyStartedInstances();
     monitorThread = createThread();
@@ -42,7 +42,7 @@ public class ArchiveWatcher {
     }
   }
 
-  public void stop() {
+  void stop() {
     stopped = true;
     if(monitorThread != null)
       monitorThread.interrupt();
@@ -78,16 +78,16 @@ public class ArchiveWatcher {
               Path filename = ev.context();
               
               if(kind == StandardWatchEventKinds.ENTRY_CREATE) {     
-                System.out.println("New instance: " + filename.toString() + " detected.");
+                SimpleLogger.log("New instance: " + filename.toString() + " detected.");
                 InterlokInstance interlokInstance = this.scheduleNewLaunch(new File(directory, filename.toString()));
                 getInstanceList().add(interlokInstance);
                                 
               } else if(kind == StandardWatchEventKinds.ENTRY_DELETE) {
-                System.out.println("Removing instance - " + filename.toString());
+                SimpleLogger.log("Removing instance - " + filename.toString());
                 this.scheduleShutdown(new File(directory, filename.toString()));
                 
               } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-                System.out.println("Modifying instance - " + filename.toString());
+                SimpleLogger.log("Modifying instance - " + filename.toString());
                 if(scheduledStartups.containsKey(filename.toString()))
                   scheduledStartups.get(filename.toString()).delayStartup();
               } else
@@ -120,19 +120,19 @@ public class ArchiveWatcher {
     };
   }
   
-  public String getDirectoryToWatch() {
+  String getDirectoryToWatch() {
     return directoryToWatch;
   }
 
-  public void setDirectoryToWatch(String directoryToWatch) {
+  void setDirectoryToWatch(String directoryToWatch) {
     this.directoryToWatch = directoryToWatch;
   }
 
-  public List<InterlokInstance> getInstanceList() {
+  List<InterlokInstance> getInstanceList() {
     return instanceList;
   }
 
-  public void setInstanceList(List<InterlokInstance> instanceList) {
+  void setInstanceList(List<InterlokInstance> instanceList) {
     this.instanceList = instanceList;
   }
   

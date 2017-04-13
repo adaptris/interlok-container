@@ -4,9 +4,12 @@ import static com.adaptris.management.aar.Constants.ARCHIVE_PATH_KEY;
 import static com.adaptris.management.aar.Constants.GLOBAL_LIB_PATH_KEY;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import javax.management.MBeanServer;
 
 public class ContainerBootstrap {
   
@@ -16,11 +19,13 @@ public class ContainerBootstrap {
     new ContainerBootstrap().doContainer(args);
   }
   
-  public void doContainer(String[] args) {
+  void doContainer(String[] args) {
     try {
       containerProperties = parseArguments(args);
       PropertiesHelper.verifyProperties(containerProperties, GLOBAL_LIB_PATH_KEY, ARCHIVE_PATH_KEY);
-      
+      ClasspathInitialiser.init(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY).split(File.pathSeparator));
+      MBeanServer s = ManagementFactory.getPlatformMBeanServer();
+
       List<InterlokInstance> instanceList = new ArrayList<>();
       
       File aarDirectory = new File(containerProperties.getProperty(ARCHIVE_PATH_KEY));
@@ -37,11 +42,10 @@ public class ContainerBootstrap {
       archiveWatcher.setInstanceList(instanceList);
       archiveWatcher.start();
       
-      System.out.println("Interlok container started - awaiting archives...");
+      SimpleLogger.log("Interlok container started - awaiting archives...");
       
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println(this.usage());
+      SimpleLogger.log(this.usage(), e);
     }
   }
 
@@ -62,13 +66,8 @@ public class ContainerBootstrap {
     return "Only a single argument is required; the path to the container properties file.";
   }
 
-  public static Properties getContainerProperties() {
+  static Properties getContainerProperties() {
     return containerProperties;
   }
-
-  public static void setContainerProperties(Properties containerProperties) {
-    ContainerBootstrap.containerProperties = containerProperties;
-  }
-
   
 }

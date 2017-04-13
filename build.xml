@@ -11,9 +11,10 @@
 
     <property name="ivy.publish.revision" value="3.2-SNAPSHOT"/>  <!-- Version number of this artifact -->
     <property name="manifest.title" value="Interlok Archive Container"/>
+    <property name="project.pom.description" value="Multiple adapters in a single JVM"/>
     <property name="src.dir" value="${basedir}/src"/>
     <property name="build-util.lib.dir"     value="${basedir}/../build-util"/>
-
+    <property name="jmxmp.version" value="1.0-b01-ea"/>
     <property name="testsrc.dir" value="${basedir}/test/src"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="test.resources.dir" value="${basedir}/test/resources"/>
@@ -46,7 +47,7 @@
 
     <property name="build.tmp.dir" value="${build.dir}/tmp"/>
     <property name="jar.version"            value="${today}-${user.name}"/>
-    <property name="project.name"           value="adp-${ant.project.name}"/>
+    <property name="project.name"           value="interlok-${ant.project.name}"/>
 
     <property name="project.dist.dir" value="${build.dir}/dist"/>
     <property name="project.jar.name" value = "${project.name}.jar"/>
@@ -83,7 +84,27 @@
 
   <target name="jar.resources" depends="prepare">
     <!-- build the manifest file -->
-    <adapter:create-manifest file="${build.dir}/Manifest.mf" title="${manifest.title}"/>
+    <pathconvert property="jar.classpath" pathsep=" ">
+      <path refid="classpath.jar"/>
+        <mapper>
+          <chainedmapper>
+            <flattenmapper/>
+            <!-- strip the jmxmp-version -->
+            <regexpmapper from="^(.*)-${jmxmp.version}.jar$$" to="\1.jar" casesensitive="no"/>
+          </chainedmapper>
+        </mapper>
+    </pathconvert>
+    <manifest file="${build.dir}/Manifest.mf">
+      <attribute name="Manifest-Version" value="1.0"/>
+      <attribute name="Build-Version" value="${ivy.publish.revision}"/>
+      <attribute name="Built-By" value="${user.name}"/>
+      <attribute name="Main-Class" value="com.adaptris.management.aar.ContainerBootstrap"/>
+      <attribute name="Class-Path" value="${jar.classpath}" />
+      <attribute name="Implementation-Vendor" value="Adaptris Ltd"/>
+      <attribute name="Implementation-Vendor-Id" value="com.adaptris"/>
+      <attribute name="Implementation-Version" value="${ivy.publish.revision}"/>
+      <attribute name="Implementation-Title" value="${manifest.title}"/>
+    </manifest>
   </target>
 
 
@@ -98,22 +119,6 @@
         <group title="Interlok Archive Conatiner" packages="com.adaptris.management.aar:com.adaptris.management.aar.*"/>
       </groups>
     </adapter:ydoc-javadoc-creator>
-  </target>
-
-  <!-- Perform a release -->
-  <target name="dist" depends="jar, javadoc" description="Create a distribution">
-    <mkdir dir="${build.tmp.dir}/dist/lib"/>
-    <mkdir dir="${project.dist.dir}"/>
-    <delete file="${dist.filename}"/>
-    <copy todir="${build.tmp.dir}/dist/lib" preservelastmodified="true" verbose="true">
-      <fileset dir="${project.dist.dir}">
-        <include name="${project.jar.name}" />
-      </fileset>
-    </copy>
-    <zip destfile="${dist.filename}">
-      <zipfileset dir="${build.tmp.dir}/dist/lib" prefix="lib"/>
-      <zipfileset dir="${api.doc.dir}" prefix="docs/${ant.project.name}/api"/>
-    </zip>
   </target>
 
   <target name="compile_tests" depends="compile, jar">
@@ -140,7 +145,7 @@
   </target>
 
 
-
+  <!--
   <target name="test" depends="run-tests" description="run tests">
     <adapter:test-reports basedir="${tests.output.dir}" reportdir="${html.tests.output.dir}"/>
     <fail message="JUNIT tests failed, check output in ${tests.output.dir}" if="junit.failed"/>
@@ -158,5 +163,12 @@
   <target name="example-xml.zip" depends="init" description="Build the example xml zip file">
     <zip destfile = "${example-xml.doc.zip}" basedir="${example.xml}" />
   </target>
+  -->
 
+  <target name="test" depends="init" description="run tests">
+    <echo message="Sadly, there are no tests"/>
+  </target>
+  <target name="test-no-reports" depends="init" description="Run Tests with No reports">
+    <echo message="Sadly, there are no tests"/>
+  </target>
 </project>

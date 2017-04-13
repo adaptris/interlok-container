@@ -1,7 +1,6 @@
 package com.adaptris.management.aar;
 
 import static com.adaptris.management.aar.Constants.ARCHIVE_PATH_KEY;
-import static com.adaptris.management.aar.Constants.GLOBAL_LIB_PATH_KEY;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -12,12 +11,10 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Properties;
 
-public class ArchiveInstanceRunner extends Thread {
+class ArchiveInstanceRunner extends Thread {
   
   private static Object instanceRunnerMonitor = new Object();
-  
-  private static final String DEFAULT_INVOKED_METHODS = "logVersionInformation,standardBoot";
-  
+
   private static final String BOOTSTRAP_PROPERTIES = "bootstrap.properties";
   
   private Properties containerProperties;
@@ -26,18 +23,18 @@ public class ArchiveInstanceRunner extends Thread {
   
   private URLClassLoader classLoader;
   
-  public ArchiveInstanceRunner(String instanceName, Properties containerProperties) {
+  ArchiveInstanceRunner(String instanceName, Properties containerProperties) {
     interlokInstance = new InterlokInstance();
     interlokInstance.setInstanceName(instanceName);
     this.containerProperties = containerProperties;
   }
   
-  public ArchiveInstanceRunner(InterlokInstance interlokInstance, Properties containerProperties) {
+  ArchiveInstanceRunner(InterlokInstance interlokInstance, Properties containerProperties) {
     this.interlokInstance = interlokInstance;
     this.containerProperties = containerProperties;
   }
   
-  public InterlokInstance startInstance() throws Exception {
+  InterlokInstance startInstance() throws Exception {
     File aarDirectory = new File(containerProperties.getProperty(ARCHIVE_PATH_KEY));
     interlokInstance.setInstanceProperties(PropertiesHelper.loadFromFile(new File(new File(aarDirectory, interlokInstance.getInstanceName()), BOOTSTRAP_PROPERTIES).getAbsolutePath()));
     
@@ -51,15 +48,14 @@ public class ArchiveInstanceRunner extends Thread {
         Thread.currentThread().setName(interlokInstance.getInstanceName());
         
         File aarDirectory = new File(containerProperties.getProperty(ARCHIVE_PATH_KEY));
-        PropertiesHelper.verifyProperties(interlokInstance.getInstanceProperties(), Constants.INSTANCE_MAIN_CLASS);
         
-        URL[] classpathJars = this.getDirectoryJars(
-            new File(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY)).getAbsolutePath(),
-            new File(new File(aarDirectory, interlokInstance.getInstanceName()), "lib").getAbsolutePath()
-        );
-              
-        classLoader = new URLClassLoader(classpathJars, this.getClass().getClassLoader());
-        Class<?> standardBootstrapClass = classLoader.loadClass(interlokInstance.getInstanceProperties().getProperty(Constants.INSTANCE_MAIN_CLASS));
+        // URL[] classpathJars = this.getDirectoryJars(
+        // new File(containerProperties.getProperty(GLOBAL_LIB_PATH_KEY)).getAbsolutePath(),
+        // new File(new File(aarDirectory, interlokInstance.getInstanceName()), "lib").getAbsolutePath()
+        // );
+        // classLoader = new ChildFirstClassloader(classpathJars, this.getClass().getClassLoader());
+        classLoader = new ChildFirstClassloader(new URL[0], this.getClass().getClassLoader());
+        Class<?> standardBootstrapClass = classLoader.loadClass(interlokInstance.instanceMainClass());
         Constructor<?> bootstrapConstructor = standardBootstrapClass.getConstructor(String[].class);
         
         File aarInstDir = new File(aarDirectory, interlokInstance.getInstanceName());
@@ -68,14 +64,13 @@ public class ArchiveInstanceRunner extends Thread {
         
         Thread.currentThread().setContextClassLoader(classLoader);
         
-        invokeInstanceBootstrap(interlokInstance.getInstanceProperties(), standardBootstrapClass, standardBootstrapInst);
+        invokeInstanceBootstrap(interlokInstance, standardBootstrapClass, standardBootstrapInst);
         
         registerShutdownHook();
       }
       
     } catch (Exception e) {
-      System.out.println("Failed to start archive instance.");
-      e.printStackTrace();
+      SimpleLogger.log("Failed to start archive instance.", e);
     }
   }
 
@@ -97,12 +92,10 @@ public class ArchiveInstanceRunner extends Thread {
     
   }
 
-  private void invokeInstanceBootstrap(Properties instanceProperties, Class<?> standardBootstrapClass, Object standardBootstrapInst) throws Exception {
-    String[] methods = (instanceProperties.containsKey(Constants.INSTANCE_INVOKED_METHODS) ? instanceProperties.getProperty(Constants.INSTANCE_INVOKED_METHODS) : DEFAULT_INVOKED_METHODS).split(",");
-    
-    for(String method : methods) {
+  private void invokeInstanceBootstrap(InterlokInstance instance, Class<?> standardBootstrapClass, Object standardBootstrapInst)
+      throws Exception {
+    for (String method : instance.instanceInvokedMethods()) {
       Class<?> invokableStandardBootstrapClass = standardBootstrapClass;
-      
       boolean done = false;
       while(!done) {
         try {
@@ -138,7 +131,7 @@ public class ArchiveInstanceRunner extends Thread {
         });
   
         if (fileNames == null)
-          System.out.println("No jars found in [" + dir.getCanonicalPath() + "]");
+          SimpleLogger.log("No jars found in [" + dir.getCanonicalPath() + "]");
         else {  
           for (int i = 0; i < fileNames.length; i++) {
             File file = new File(dir.getPath() + File.separator + fileNames[i]);

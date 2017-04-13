@@ -2,34 +2,50 @@ package com.adaptris.management.aar;
 
 import java.util.Properties;
 
-public class InterlokInstance {
+class InterlokInstance {
+
+  private static final Properties DEFAULTS;
+
+  static {
+    DEFAULTS = new Properties();
+    DEFAULTS.setProperty(Constants.INSTANCE_MAIN_CLASS, "com.adaptris.core.management.StandardBootstrap");
+    DEFAULTS.setProperty(Constants.INSTANCE_INVOKED_METHODS, "logVersionInformation,standardBoot");
+  }
 
   private String instanceName;
-  
-  private Properties instanceProperties;
-  
-  public InterlokInstance() {
+
+  private Properties instanceProperties = new Properties(DEFAULTS);
+
+  InterlokInstance() {
+    instanceProperties = new Properties(DEFAULTS);
   }
   
-  public InterlokInstance(String instanceName, Properties instanceProperties) {
+  InterlokInstance(String instanceName, Properties instanceProperties) {
     this.setInstanceName(instanceName);
     this.setInstanceProperties(instanceProperties);
   }
 
-  public String getInstanceName() {
+  String getInstanceName() {
     return instanceName;
   }
 
-  public void setInstanceName(String instanceName) {
+  void setInstanceName(String instanceName) {
     this.instanceName = instanceName;
   }
 
-  public Properties getInstanceProperties() {
+  Properties getInstanceProperties() {
     return instanceProperties;
   }
 
-  public void setInstanceProperties(Properties instanceProperties) {
-    this.instanceProperties = instanceProperties;
+  void setInstanceProperties(Properties instanceProperties) {
+    this.instanceProperties.putAll(instanceProperties);
   }
   
+  String instanceMainClass() {
+    return instanceProperties.getProperty(Constants.INSTANCE_MAIN_CLASS);
+  }
+
+  String[] instanceInvokedMethods() {
+    return instanceProperties.getProperty(Constants.INSTANCE_INVOKED_METHODS).split(",");
+  }
 }
