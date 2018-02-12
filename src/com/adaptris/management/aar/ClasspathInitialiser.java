@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.StringTokenizer;
 
+// Doesn't work well in J9
+@Deprecated
 class ClasspathInitialiser {
 
 
@@ -78,7 +80,7 @@ class ClasspathInitialiser {
     URLClassLoader urlLoader = getUrlClassLoader();
     Method method = getAddMethod();
     if (urlLoader != null) {
-      if (!currentClasspath.contains(file.getCanonicalPath())) {
+      if (!currentClasspath.contains(file.getCanonicalFile())) {
         SimpleLogger.log("(Info) ClasspathInitialiser.load: " + file.getCanonicalPath());
         method.invoke(urlLoader, new Object[] {file.toURI().toURL()});
         currentClasspath.add(file);
@@ -107,7 +109,7 @@ class ClasspathInitialiser {
     while (st.hasMoreElements()) {
       try {
         File file = new File((String) st.nextElement());
-        if (!result.contains(file.getCanonicalPath())) {
+        if (!result.contains(file.getCanonicalFile())) {
           result.add(file);
           SimpleLogger.log("(Info) ContainerBootstrap.getCurrentClassPath: " + file.getCanonicalPath());
         }
