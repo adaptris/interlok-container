@@ -14,4 +14,5 @@ class Constants {
   
   static final String INTERLOK_INSTANCE_ID = "instance.id";
 
+  static final String DEFAULT_BOOTSTRAP_RESOURCE = "container.properties";
 }
