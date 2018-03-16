@@ -8,7 +8,7 @@ class InterlokInstance {
 
   static {
     DEFAULTS = new Properties();
-    DEFAULTS.setProperty(Constants.INSTANCE_MAIN_CLASS, "com.adaptris.core.management.StandardBootstrap");
+    DEFAULTS.setProperty(Constants.INSTANCE_MAIN_CLASS, "com.adaptris.core.management.SimpleBootstrap");
     DEFAULTS.setProperty(Constants.INSTANCE_INVOKED_METHODS, "logVersionInformation,standardBoot");
   }
 

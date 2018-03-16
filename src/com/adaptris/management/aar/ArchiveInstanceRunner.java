@@ -36,7 +36,8 @@ class ArchiveInstanceRunner extends Thread {
   
   InterlokInstance startInstance() throws Exception {
     File aarDirectory = new File(containerProperties.getProperty(ARCHIVE_PATH_KEY));
-    interlokInstance.setInstanceProperties(PropertiesHelper.loadFromFile(new File(new File(aarDirectory, interlokInstance.getInstanceName()), BOOTSTRAP_PROPERTIES).getAbsolutePath()));
+    interlokInstance.setInstanceProperties(PropertiesHelper
+        .load(new File(new File(aarDirectory, interlokInstance.getInstanceName()), BOOTSTRAP_PROPERTIES).getAbsolutePath()));
     
     this.start();
     return interlokInstance;

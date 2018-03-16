@@ -47,10 +47,10 @@ class InterlokInstanceManager {
       public void run() {
         SimpleLogger.log("About to start new Interlok instance: " + interlokInstance.getInstanceName());
         try {
-          interlokInstance = new ArchiveInstanceRunner(interlokInstance, ContainerBootstrap.getContainerProperties()).startInstance();
+          interlokInstance = new ArchiveInstanceRunner(interlokInstance, SimpleBootstrap.containerProperties()).startInstance();
           isRunning = true;
         } catch (Exception e) {
-          e.printStackTrace();
+          SimpleLogger.log("Failed to start new Interlok instance: " + interlokInstance.getInstanceName(), e);
         }
       }
     };
@@ -91,7 +91,6 @@ class InterlokInstanceManager {
       SimpleLogger.log(
           "No Instance matching " + this.interlokInstance.getInstanceProperties().getProperty(INTERLOK_INSTANCE_ID) + " found");
     } catch (Exception ex) {
-      ex.printStackTrace();
     } finally {
       closeQuietly(jmxc);
       isRunning = false;
