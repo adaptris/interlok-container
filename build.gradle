@@ -1,12 +1,13 @@
 ext {
-  adpCoreVersion = project.hasProperty('adpCoreVersion') ? project.getProperty('adpCoreVersion') : '3.8-SNAPSHOT'
+  interlokCoreVersion = project.hasProperty('interlokCoreVersion') ? project.getProperty('interlokCoreVersion') : '3.8-SNAPSHOT'
   releaseVersion = project.hasProperty('releaseVersion') ? project.getProperty('releaseVersion') : '3.8-SNAPSHOT'
   mavenPublishUrl = project.hasProperty('mavenPublishUrl') ? project.getProperty('mavenPublishUrl') : 'https://development.adaptris.net/nexus/content/repositories/snapshots'
   repoUsername = project.hasProperty('repoUsername') ? project.getProperty('repoUsername') : 'unknown'
   repoPassword = project.hasProperty('repoPassword') ? project.getProperty('repoPassword') : 'unknown'
   defaultNexusRepo = project.hasProperty('defaultNexusRepo') ? project.getProperty('defaultNexusRepo') : 'https://repo1.maven.org/maven2/'
-  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-API/'
-  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : 'https://development.adaptris.net/javadocs/latest/Interlok-Common/'
+  javadocsBaseUrl = "https://development.adaptris.net/nexus/content/sites/javadocs/com/adaptris"
+  interlokJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-core/" + interlokCoreVersion
+  interlokCommonJavadocs= project.hasProperty('interlokJavadocs') ? project.getProperty('interlokJavadocs') : javadocsBaseUrl + "/interlok-common/" + interlokCoreVersion
   componentName='Interlok Archive Container'
   organizationName = "Adaptris Ltd"
   organizationUrl = "http://interlok.adaptris.net"
@@ -61,9 +62,9 @@ dependencies {
   compile  ("org.glassfish.external:opendmk_jmxremote_optional_jar:1.0-b01-ea")
   compile  ("org.glassfish.external:opendmk_jdmkrt_jar:1.0-b01-ea")
 
-  annotationProcessor ("com.adaptris:interlok-common:$adpCoreVersion") {changing= true}
+  annotationProcessor ("com.adaptris:interlok-common:$interlokCoreVersion") {changing= true}
 
-  javadoc("com.adaptris:interlok-core-apt:$adpCoreVersion") { changing= true}
+  javadoc("com.adaptris:interlok-core-apt:$interlokCoreVersion") { changing= true}
 
 }
 
@@ -93,7 +94,7 @@ task generateVersion {
     ant.propertyfile(file: versionFile) {
       entry(key: 'component.name', value: componentName)
       entry(key: 'build.version', value: releaseVersion)
-      entry(key: 'groupId', value: "com.adaptris")
+      entry(key: 'groupId', value: project.group)
       entry(key: 'artifactId', value: project.name)
       entry(key: 'build.date', value: new Date().format('yyyy-MM-dd'))
     }
