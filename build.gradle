@@ -143,10 +143,12 @@ publishing {
       artifact javadocJar { classifier "javadoc" }
 
       pom.withXml {
+        asNode().appendNode("name", componentName)
         asNode().appendNode("description", "Multiple adapters in a single JVM")
         def properties = asNode().appendNode("properties")
         properties.appendNode("target", "3.6.1+")
         properties.appendNode("license", "false")
+        properties.appendNode("tags", "container")
       }
     }
   }
