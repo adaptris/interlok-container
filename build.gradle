@@ -188,6 +188,7 @@ publishing {
         properties.appendNode("license", "false")
         properties.appendNode("tags", "container")
         properties.appendNode("repository", "https://github.com/adaptris/interlok-container")
+        properties.appendNode("deprecated", "Deprecated, for removal in Interlok 4.0.0, since docker arrived, this component is unloved/not needed")        
       }
     }
   }
