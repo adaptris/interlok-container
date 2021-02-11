@@ -7,5 +7,4 @@ The suggested name was `potential-goggles`
 This allows to start up multiple adapters inside the same JVM as an alternative to the standard
 bootstrap.
 
-TODO : Documentation
-TODO : Tests
+__Deprecated, for removal in Interlok 4.0.0, since docker arrived, this component is unloved/not needed__
